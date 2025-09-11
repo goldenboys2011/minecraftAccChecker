@@ -29,7 +29,7 @@ cape_values = {
     "Spade": 100000, "Translator (Japanese)": 100000
 }
 
-HYPX_API_KEY = "af9b6562-8712-4883-aad7-e0196a336e0a"
+HYPX_API_KEY = "75a5343b-23a6-44d3-928b-4838b5364364"
 
 # -------------------
 # Helpers
@@ -140,6 +140,10 @@ def calculate(username):
 @app.route("/")
 def home():
     return send_from_directory(app.static_folder, "index.html")
+
+@app.route("/tos")
+def home():
+    return send_from_directory(app.static_folder, "tos.html")
 
 @app.route("/analyze")
 def analyze():
