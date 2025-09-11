@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Minecraft Account Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0b12;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 0;
+      margin: 0;
+    }
+
+    h2 {
+      color: #c084fc;
+      text-shadow: 0 0 10px #a855f7;
+      margin-bottom: 40px;
+    }
+
+    /* input + button combo */
+    .input-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 45%;
+      min-width: 400px;
+      max-width: 900px;
+      margin-bottom: 30px;
+    }
+    .input-group input {
+      flex: 1;
+      padding: 15px 20px;
+      border: none;
+      border-radius: 12px 0 0 12px;
+      font-size: 18px;
+      outline: none;
+      background: rgba(100, 0, 150, 0.2);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+    }
+    .input-group button {
+      padding: 15px 25px;
+      border: none;
+      border-radius: 0 12px 12px 0;
+      background: rgba(168, 85, 247, 0.3);
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+    }
+    .input-group button:hover {
+      background: rgba(168, 85, 247, 0.5);
+    }
+
+    /* line-style info boxes */
+    .box {
+      width: 45%;
+      min-width: 400px;
+      max-width: 900px;
+      background: rgba(40, 0, 60, 0.3);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      border-radius: 8px;
+      padding: 8px 15px;
+      margin: 8px 0;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .box h3 {
+      margin: 0;
+      color: #d8b4fe;
+      font-size: 16px;
+      text-shadow: 0 0 5px #a855f7;
+    }
+    .box p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    /* expand button */
+    .expand-btn {
+      background: rgba(168, 85, 247, 0.2);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #c084fc;
+      transition: 0.3s;
+    }
+    .expand-btn:hover {
+      background: rgba(168, 85, 247, 0.4);
+    }
+
+    /* warnings */
+    .warning.red { color: #ff4dff; font-weight: bold; }
+    .warning.yellow { color: #ffdd66; font-weight: bold; }
+
+      footer {
+    margin-top: 50px;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    background: transparent;
+    color: #aaa;
+    font-size: 14px;
+    bottom: 1px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .icon {
+    width: 28px;
+    height: 28px;
+    fill: #c084fc;
+    filter: drop-shadow(0 0 5px #a855f7);
+    transition: 0.3s;
+    cursor: pointer;
+  }
+  .icon:hover {
+    fill: #fff;
+    transform: scale(1.15);
+  }
+
+  .copyright {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #888;
+    text-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
+  }
+  </style>
+</head>
+<body>
+  <h2>Minecraft Account Analyzer</h2>
+
+  <div class="input-group">
+    <input id="username" placeholder="Enter username" />
+    <button onclick="analyze()">Analyze</button>
+  </div>
+
+  <div id="results"></div>
+
+<script>
+async function analyze() {
+  const user = document.getElementById("username").value;
+  if (!user) return;
+  document.getElementById("results").innerHTML = "<p>Loading...</p>";
+  const res = await fetch(`http://127.0.0.1:5000/analyze?username=${user}`);
+  const data = await res.json();
+  if (data.error) {
+    document.getElementById("results").innerHTML = `<p style="color:red">${data.error}</p>`;
+    return;
+  }
+
+  let html = "";
+
+  // Warnings
+  if (data.warnings.length) {
+    for (const w of data.warnings) {
+      const color = w.toLowerCase().includes("ban") ? "red" : "yellow";
+      html += `<div class="box"><p class="warning ${color}">${w}</p></div>`;
+    }
+  }
+
+  // Worth
+  html += `<div class="box"><h3>Total Worth</h3><p>$${data.worth}</p></div>`;
+
+  // Each detail in its own line box
+  for (const d of data.details) {
+    html += `<div class="box"><p>${d}</p></div>`;
+  }
+
+  // Capes
+  if (data.capes && data.capes.length) {
+    html += `<div class="box"><h3>Capes</h3>
+      <div id="capeList" style="display:none">
+        <ul>`;
+    for (const c of data.capes) {
+      html += `<li>${c.name}: +${c.bonus}</li>`;
+    }
+    html += `</ul>
+      </div>
+      <button class="expand-btn" onclick="toggleExpand('capeList', this)">[expand]</button>
+    </div>`;
+  }
+
+  document.getElementById("results").innerHTML = html;
+}
+
+function toggleExpand(id, btn) {
+  const el = document.getElementById(id);
+  if (el.style.display === "none") {
+    el.style.display = "block";
+    btn.innerText = "[collapse]";
+  } else {
+    el.style.display = "none";
+    btn.innerText = "[expand]";
+  }
+}
+</script>
+
+<footer>
+  <div class="footer-links">
+    <!-- API Sources -->
+    <a href="https://mojang.com/" target="_blank" title="Mojang">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/mojangstudios.svg" class="icon">
+    </a>
+    <a href="https://hypixel.net/" target="_blank" title="Hypixel">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/hypixel.svg" class="icon">
+    </a>
+    <a href="https://namemc.com/" target="_blank" title="NameMC">
+      <img  src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/namemc.svg" class="icon">
+    </a>
+    <a href="https://dictionaryapi.dev/" target="_blank" title="DictionaryAPI">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/bookstack.svg" class="icon">
+    </a>
+  </div>
+
+  <div class="footer-links">
+    <!-- Socials -->
+    <a href="https://x.com/mccapescom" target="_blank" title="X / Twitter">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/x.svg"  class="icon">
+    </a>
+    <a href="https://reddit.com/r/minecraftcapes2" target="_blank" title="Reddit">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/reddit.svg" class="icon">
+    </a>
+    <a href="https://discord.com/invite/KtkW8nyN" target="_blank" title="Discord">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/discord.svg" class="icon">
+    </a>
+    <a href="https://github.com/mccapescom" target="_blank" title="GitHub">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/github.svg" class="icon">
+    </a>
+  </div>
+
+  <p class="copyright">© Minecraft Capes Community 2025-2026</p>
+</footer>
+
+</body>
+</html>
