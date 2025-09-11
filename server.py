@@ -142,7 +142,7 @@ def home():
     return send_from_directory(app.static_folder, "index.html")
 
 @app.route("/tos")
-def home():
+def tos():
     return send_from_directory(app.static_folder, "tos.html")
 
 @app.route("/analyze")
