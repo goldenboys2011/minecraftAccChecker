@@ -1,0 +1,5 @@
+[phases.setup]
+python_version = "3.12"
+
+[phases.build]
+# nothing needed, just install dependencies
