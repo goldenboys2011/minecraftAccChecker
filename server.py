@@ -10,7 +10,7 @@ CORS(app)
 # -------------------
 # Config
 # -------------------
-specialDicti = {"notch", "herobrine", "steve", "dl0ze"}
+specialDicti = {"notch", "herobrine", "steve", "Dl0ze"} #Dl0ze is now easter egg as it will never 
 
 cape_values = {
     "Migrator": 9, "15th Anniversary": 15, "Pan": 0,
@@ -67,6 +67,10 @@ def calculate(username):
     if not uuid:
         return {"error": "Invalid username"}
 
+    if len(username) >= 3:
+        bonus = int(2000 / len(username))
+        worth += bonus
+        details.append(f"Small username [{len(username)}] ({bonus})")
     # Special dictionary
     if username.lower() in specialDicti:
         worth += 500
