@@ -157,7 +157,7 @@ async function analyze() {
   const user = document.getElementById("username").value;
   if (!user) return;
   document.getElementById("results").innerHTML = "<p>Loading...</p>";
-  const res = await fetch(`http://127.0.0.1:5000/analyze?username=${user}`);
+  const res = await fetch(`/analyze?username=${user}`);
   const data = await res.json();
   if (data.error) {
     document.getElementById("results").innerHTML = `<p style="color:red">${data.error}</p>`;

@@ -3,7 +3,7 @@ import os
 from flask_cors import CORS
 from datetime import datetime
 import requests, re
-from namemcwrapper import get_profile  # your existing wrapper
+from namemcwrapper import get_profile
 
 app = Flask(__name__, static_folder="static")
 CORS(app)
