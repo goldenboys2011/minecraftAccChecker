@@ -210,11 +210,19 @@ def analyze():
     if not username:
         return jsonify({"error": "Missing username"}), 400
 
-    data = calculate(username)
-    if "error" in data:
-        return jsonify(data), 502  # external API failure
+    try:
+        data = calculate(username)
+    except Exception as e:
+        return jsonify({"error": f"Unexpected server error: {str(e)}"}), 500
 
-    # Add skin hash
+    if "error" in data:
+        # Differentiate between input vs. server problems
+        if "Invalid username" in data["error"]:
+            return jsonify(data), 400
+        else:
+            return jsonify(data), 500
+
+    # Add skin hash (optional step)
     uuid_data = get_uuid(username)
     if "error" not in uuid_data:
         skin_data = getSkinHash(uuid_data["uuid"])
@@ -223,6 +231,7 @@ def analyze():
             data["hashCape"] = skin_data["cape_hash"]
 
     return jsonify(data), 200
+
 
 # -------------------
 # Run
