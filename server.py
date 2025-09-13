@@ -4,6 +4,8 @@ from flask_cors import CORS
 from datetime import datetime
 import requests, re
 from namemcwrapper import get_profile
+import json
+import base64
 
 app = Flask(__name__, static_folder="static")
 CORS(app)
@@ -67,7 +69,7 @@ def calculate(username):
     if not uuid:
         return {"error": "Invalid username"}
 
-    if len(username) >= 3:
+    if len(username) <= 3:
         bonus = int(2000 / len(username))
         worth += bonus
         details.append(f"Small username [{len(username)}] ({bonus})")
@@ -137,6 +139,15 @@ def calculate(username):
         "capes": cape_details
     }
 
+def getSkinHash(uuid):
+    url = f"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}"
+    res = requests.get(url).json()
+    b64_value = res["properties"][0]["value"]
+    decoded = json.loads(base64.b64decode(b64_value))
+    skin_url = decoded["textures"]["SKIN"]["url"]
+    cape_url = decoded["textures"]["CAPE"]["url"]
+    return skin_url.split("/")[-1] + "," + cape_url.split("/")[-1]  # just the hash
+
 @app.route("/")
 def home():
     return send_from_directory(app.static_folder, "index.html")
@@ -150,7 +161,20 @@ def analyze():
     username = request.args.get("username")
     if not username:
         return jsonify({"error": "Missing username"}), 400
-    return jsonify(calculate(username))
+
+    data = calculate(username)
+
+    # Add skin hash
+    uuid = get_uuid(username)
+    if uuid:
+        hashes = getSkinHash(uuid)
+        skin_hash = hashes.split(",")[0]
+        cape_hash = hashes.split(",")[1]
+        data["hash"] = skin_hash
+        data["hashCape"] = cape_hash
+
+    return jsonify(data)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)

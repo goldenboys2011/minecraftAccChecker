@@ -22,7 +22,7 @@ scraper = cloudscraper.create_scraper()  # handles Cloudflare
 
 def get_profile(username: str):
     url = f"{BASE_URL}{username}"
-    res = scraper.get(url)
+    res = scraper.get(url, headers=HEADERS)
     if res.status_code != 200:
         raise Exception(f"Failed to fetch profile ({res.status_code})")
 

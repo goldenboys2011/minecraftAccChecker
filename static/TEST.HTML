@@ -1,0 +1,43 @@
+<html>
+<head>
+    <style>
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://github.com/bs-community/skinview3d/raw/refs/heads/master/assets/minecraft.woff2') format('woff2');
+        }
+    </style>
+    <script src="https://unpkg.com/skinview3d/bundles/skinview3d.bundle.js"></script>
+</head>
+<body>
+    <canvas id="skin_container"></canvas>
+<script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const canvas = document.getElementById("skin_container");
+        if (!canvas) return;
+
+        const viewer = new skinview3d.SkinViewer({
+            canvas: canvas,
+            width: 300,
+            height: 400,
+            skin: "http://textures.minecraft.net/texture/fa54ddd09bd37c59ec9d46a86f1aced03ed2b999510d1aea96ef8705fc19df17",
+            ears: "current-skin",
+        });
+
+        viewer.controls.enableZoom = true;
+        viewer.autoRotate = true;
+
+        // Optional cape (must exist on server)
+        viewer.loadCape("http://textures.minecraft.net/texture/2340c0e03dd24a11b15a8b33c2a7e9e32abb2051b2481d0ba7defd635ca7a933");
+
+        // Name tag (set string, not undefined var)
+        viewer.nameTag = "goldenGR";
+
+        // Walking animation
+        viewer.animation = new skinview3d.WalkingAnimation();
+
+        // Set the speed of the animation
+        viewer.animation.speed = 1;
+    });
+</script>
+</body>
+</html>

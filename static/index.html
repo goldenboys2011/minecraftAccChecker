@@ -180,7 +180,18 @@
     #tos-box button:hover {
       background: rgba(168, 85, 247, 0.7);
     }
+
+    #skin_container{
+      display: block;
+      margin: 2em auto; /* centers horizontally */
+    }
+
+    @font-face {
+      font-family: 'Minecraft';
+      src: url('./static/fonts/minecraft.woff2') format('woff2');
+    }
   </style>
+  <script src="https://unpkg.com/skinview3d/bundles/skinview3d.bundle.js"></script>
 </head>
 <body>
   <h2>Minecraft Account Analyzer</h2>
@@ -248,9 +259,38 @@ async function analyze() {
       </div>
       <button class="expand-btn" onclick="toggleExpand('capeList', this)">[expand]</button>
     </div>`;
-  }
+    
+const hash = data.hash;
+const hashCape = data.hashCape
+html += `<canvas id="skin_container"></canvas>`;
+document.getElementById("results").innerHTML = html;
 
-  document.getElementById("results").innerHTML = html;
+    const canvas = document.getElementById("skin_container");
+    if (!canvas) return;
+
+    const viewer = new skinview3d.SkinViewer({
+        canvas: canvas,
+        width: 300,
+        height: 400,
+        skin: `http://textures.minecraft.net/texture/${hash}`,
+    });
+
+    viewer.controls.enableZoom = true;
+    viewer.autoRotate = true;
+
+    // Optional cape (must exist on server)
+    viewer.loadCape(`http://textures.minecraft.net/texture/${hashCape}`);
+
+    // Name tag (set string, not undefined var)
+    viewer.nameTag = user;
+
+    // Walking animation
+    viewer.animation = new skinview3d.WalkingAnimation();
+
+    // Set the speed of the animation
+    viewer.animation.speed = 1;
+    viewer.zoom = 0.8;
+  }
 }
 
 function toggleExpand(id, btn) {
@@ -309,7 +349,7 @@ function declineTOS() {
       <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/mojangstudios.svg" class="icon">
     </a>
     <a href="https://hypixel.net/" target="_blank" title="Hypixel">
-      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/hypixel.svg" class="icon">
+      <img src="./static/icons/hypixel.svg" class="icon">
     </a>
     <a href="https://namemc.com/" target="_blank" title="NameMC">
       <img  src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/namemc.svg" class="icon">
