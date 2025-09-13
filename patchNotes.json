@@ -1,0 +1,14 @@
+[
+    {
+        "verson": "beta 1.7.4",
+        "notes": "◉ Created pathnotes system. <br> ◉ Made some tweeks on the account age calculator"
+    },
+    {
+        "verson": "beta 1.7.3",
+        "notes": "◉ Created 3d skin viewer on analyze <br> ◉ Made the analyze api to actually work and not return `403` from namemc"
+    },
+    {
+        "verson": "Alpha",
+        "notes": "◉ First app creation, some tweeks from original terminal calculator."
+    }
+]

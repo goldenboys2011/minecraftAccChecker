@@ -190,6 +190,79 @@
       font-family: 'Minecraft';
       src: url('./static/fonts/minecraft.woff2') format('woff2');
     }
+    
+      /* Sidebar styling */
+  #patchNotesSidebar {
+    position: fixed;
+    top: 80px; /* below main header */
+    right: 20px;
+    width: 250px;
+    max-height: 80vh;
+    background: rgba(40, 0, 60, 0.25);
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: 'Minecraft';
+    z-index: 1000;
+  }
+
+  #patchNotesSidebar h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #d8b4fe;
+    text-shadow: 0 0 5px #a855f7;
+    text-align: center;
+  }
+
+  .patch-box-sidebar {
+    background: rgba(40, 0, 60, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .patch-header-sidebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .patch-header-sidebar h5 {
+    margin: 0;
+    font-size: 14px;
+    color: #c084fc;
+  }
+
+  .patch-header-sidebar .expand-btn {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #c084fc;
+  }
+
+  .patch-header-sidebar .expand-btn:hover {
+    background: rgba(168, 85, 247, 0.35);
+  }
+
+  .patch-notes-sidebar {
+    display: none;
+    font-size: 13px;
+    color: #eee;
+    padding-top: 4px;
+    line-height: 1.3;
+  }
   </style>
   <script src="https://unpkg.com/skinview3d/bundles/skinview3d.bundle.js"></script>
 </head>
@@ -222,7 +295,7 @@ async function analyze() {
   const user = document.getElementById("username").value;
   if (!user) return;
   document.getElementById("results").innerHTML = "<p>Loading...</p>";
-  const res = await fetch(`/analyze?username=${user}`);
+  const res = await fetch(`/api/analyze?username=${user}`);
   const data = await res.json();
   if (data.error) {
     document.getElementById("results").innerHTML = `<p style="color:red">${data.error}</p>`;
@@ -259,8 +332,8 @@ async function analyze() {
       </div>
       <button class="expand-btn" onclick="toggleExpand('capeList', this)">[expand]</button>
     </div>`;
-    
-const hash = data.hash;
+  }
+  const hash = data.hash;
 const hashCape = data.hashCape
 html += `<canvas id="skin_container"></canvas>`;
 document.getElementById("results").innerHTML = html;
@@ -279,7 +352,9 @@ document.getElementById("results").innerHTML = html;
     viewer.autoRotate = true;
 
     // Optional cape (must exist on server)
-    viewer.loadCape(`http://textures.minecraft.net/texture/${hashCape}`);
+    if (hashCape != "") {
+        viewer.loadCape(`http://textures.minecraft.net/texture/${hashCape}`);
+    }
 
     // Name tag (set string, not undefined var)
     viewer.nameTag = user;
@@ -290,7 +365,6 @@ document.getElementById("results").innerHTML = html;
     // Set the speed of the animation
     viewer.animation.speed = 1;
     viewer.zoom = 0.8;
-  }
 }
 
 function toggleExpand(id, btn) {
@@ -343,6 +417,13 @@ function declineTOS() {
 }
 </script>
 
+<div id="patchNotesSidebar">
+  <h4>Patch's</h4>
+  <div id="patchNotesContentSidebar">
+    <p style="text-align:center; color:#aaa; font-size:14px;">Loading...</p>
+  </div>
+</div>
+
 <footer>
   <div class="footer-links">
     <a href="https://mojang.com/" target="_blank" title="Mojang">
@@ -377,5 +458,49 @@ function declineTOS() {
   <p class="copyright">© Minecraft Capes Community 2025-2026</p>
 </footer>
 
+
+<script>
+// Load Patch Notes:
+async function loadPatchNotesSidebar() {
+  try {
+    const res = await fetch('/api/patchnotes');
+    const notes = await res.json();
+
+    let html = '';
+    notes.forEach(note => {
+      const noteId = 'note-sidebar-' + note.verson.replace(/\s+/g,'');
+      html += `
+        <div class="patch-box-sidebar">
+          <div class="patch-header-sidebar" onclick="togglePatchSidebar('${noteId}', this)">
+            <h5>${note.verson}</h5>
+            <button class="expand-btn">[expand]</button>
+          </div>
+          <div id="${noteId}" class="patch-notes-sidebar">
+            ${note.notes}
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById('patchNotesContentSidebar').innerHTML = html;
+  } catch(err) {
+    document.getElementById('patchNotesContentSidebar').innerHTML = `<p style="color:red; text-align:center; font-size:14px;">Failed to load</p>`;
+  }
+}
+
+function togglePatchSidebar(id, header) {
+  const el = document.getElementById(id);
+  const btn = header.querySelector('.expand-btn');
+  if (el.style.display === 'none' || el.style.display === '') {
+    el.style.display = 'block';
+    btn.innerText = '[collapse]';
+  } else {
+    el.style.display = 'none';
+    btn.innerText = '[expand]';
+  }
+}
+
+loadPatchNotesSidebar();
+</script>
 </body>
 </html>
