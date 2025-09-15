@@ -18,7 +18,7 @@ HEADERS = {
 }
 
 scraper = cloudscraper.create_scraper()  # handles Cloudflare
-
+scraper.get("https://namemc.com")  # warm up session
 
 def get_profile(username: str):
     url = f"{BASE_URL}{username}"

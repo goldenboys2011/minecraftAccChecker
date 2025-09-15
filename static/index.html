@@ -460,6 +460,20 @@ function declineTOS() {
 
 
 <script>
+  // Get the URL parameters
+  const params = new URLSearchParams(window.location.search);
+
+  // Check if "username" exists
+  if (params.has("username")) {
+    const username = params.get("username");
+
+    // Run your function with the username
+    document.getElementById("username").value = username
+    analyze(username);
+  }
+
+</script>
+<script>
 // Load Patch Notes:
 async function loadPatchNotesSidebar() {
   try {
