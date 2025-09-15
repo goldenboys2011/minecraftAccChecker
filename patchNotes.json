@@ -1,5 +1,9 @@
 [
     {
+        "verson": "beta 1.7.5",
+        "notes": "◉ Added site parameter searching <br> ◉ Fixed so enter activates analyzing"
+    },
+    {
         "verson": "beta 1.7.4",
         "notes": "◉ Created pathnotes system. <br> ◉ Made some tweeks on the account age calculator"
     },

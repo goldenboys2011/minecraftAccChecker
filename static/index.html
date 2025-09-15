@@ -284,7 +284,7 @@
   </div>
 
   <div class="input-group">
-    <input id="username" placeholder="Enter username" />
+    <input id="username" placeholder="Enter username" onkeydown="if(event.key === 'Enter'){ checkTOS(); }"/>
     <button onclick="checkTOS()">Analyze</button>
   </div>
 
