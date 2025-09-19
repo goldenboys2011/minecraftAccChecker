@@ -265,6 +265,8 @@
   }
   </style>
   <script src="https://unpkg.com/skinview3d/bundles/skinview3d.bundle.js"></script>
+  <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+
 </head>
 <body>
   <h2>Minecraft Account Analyzer</h2>
@@ -291,12 +293,30 @@
   <div id="results"></div>
 
 <script>
+
+const emojiUSernames = {
+  "Zaahen":"👹",
+  "goldenGR": "🧈"
+}
+const fontUsernames = {
+  "Zaahen":"CloisterBlack.ttf"
+}
+const extensionMap = {
+  woff2: "woff2",
+  woff: "woff",
+  ttf: "truetype",
+  otf: "opentype"
+};
 async function analyze() {
   const user = document.getElementById("username").value;
+
   if (!user) return;
+
   document.getElementById("results").innerHTML = "<p>Loading...</p>";
+
   const res = await fetch(`/api/analyze?username=${user}`);
   const data = await res.json();
+
   if (data.error) {
     document.getElementById("results").innerHTML = `<p style="color:red">${data.error}</p>`;
     return;
@@ -333,38 +353,47 @@ async function analyze() {
       <button class="expand-btn" onclick="toggleExpand('capeList', this)">[expand]</button>
     </div>`;
   }
+
   const hash = data.hash;
-const hashCape = data.hashCape
-html += `<canvas id="skin_container"></canvas>`;
-document.getElementById("results").innerHTML = html;
+  const hashCape = data.hashCape
+  const fileName = fontUsernames[user] || "minecraft.woff2";
+  const extension = fileName.split(".").pop(); // gets last part (e.g. "woff2")
+  const format = extensionMap[extension] || "woff2";
+  const font = new FontFace(
+    "Minecraft",
+    `url("./static/fonts/${fileName}") format("${format}")`
+  );
 
-    const canvas = document.getElementById("skin_container");
-    if (!canvas) return;
+  html += `<canvas id="skin_container"></canvas>`;
+  document.getElementById("results").innerHTML = html;
 
-    const viewer = new skinview3d.SkinViewer({
-        canvas: canvas,
-        width: 300,
-        height: 400,
-        skin: `http://textures.minecraft.net/texture/${hash}`,
-    });
+  const canvas = document.getElementById("skin_container");
 
-    viewer.controls.enableZoom = true;
-    viewer.autoRotate = true;
+  if (!canvas) return;
 
-    // Optional cape (must exist on server)
-    if (hashCape != "") {
-        viewer.loadCape(`http://textures.minecraft.net/texture/${hashCape}`);
-    }
+  const viewer = new skinview3d.SkinViewer({
+      canvas: canvas,
+      width: 300,
+      height: 400,
+      skin: `http://textures.minecraft.net/texture/${hash}`,
+  });
 
-    // Name tag (set string, not undefined var)
-    viewer.nameTag = user;
+  viewer.controls.enableZoom = true;
+  viewer.autoRotate = true
+  viewer.animation = new skinview3d.WalkingAnimation();
+  viewer.animation.speed = 1;
+  viewer.zoom = 0.8;
 
-    // Walking animation
-    viewer.animation = new skinview3d.WalkingAnimation();
+  if (hashCape != "") {
+      viewer.loadCape(`http://textures.minecraft.net/texture/${hashCape}`);
+  }
 
-    // Set the speed of the animation
-    viewer.animation.speed = 1;
-    viewer.zoom = 0.8;
+  font.load().then((loadedFont) => {
+    document.fonts.add(loadedFont);
+    viewer.nameTag = user + (emojiUSernames[user] || "");
+  });
+  
+  twemoji.parse(document.body);
 }
 
 function toggleExpand(id, btn) {
