@@ -296,10 +296,12 @@
 
 const emojiUSernames = {
   "Zaahen":"👹",
-  "goldenGR": "🧈"
+  "goldenGR": "🧈",
+  "DL0ZE": "🥶"
 }
 const fontUsernames = {
-  "Zaahen":"CloisterBlack.ttf"
+  "Zaahen":"CloisterBlack.ttf",
+  "DL0ZE": "BobloxClassic.ttf"
 }
 const extensionMap = {
   woff2: "woff2",
@@ -307,6 +309,9 @@ const extensionMap = {
   ttf: "truetype",
   otf: "opentype"
 };
+const capeUsernames = {
+  "Zaahen":"tester_cape"
+}
 async function analyze() {
   const user = document.getElementById("username").value;
 
@@ -383,8 +388,10 @@ async function analyze() {
   viewer.animation = new skinview3d.WalkingAnimation();
   viewer.animation.speed = 1;
   viewer.zoom = 0.8;
-
-  if (hashCape != "") {
+  if (user in capeUsernames){
+    viewer.loadCape(`./static/capes/${capeUsernames[user]}`);
+  }
+  else if (hashCape != "") {
       viewer.loadCape(`http://textures.minecraft.net/texture/${hashCape}`);
   }
 

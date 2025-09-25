@@ -11,7 +11,7 @@ specialDicti = {
     "notch",
     "herobrine",
     "steve",
-    "dl0ze"
+    "Dl0ze" # easter egg, will never trigger
 }
 
 cape_values = {
