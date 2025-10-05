@@ -32,7 +32,15 @@ cape_values = {
     "Spade": 100000, "Translator (Japanese)": 100000
 }
 
-HYPX_API_KEY = "75a5343b-23a6-44d3-928b-4838b5364364"
+rank_prices = {
+    "VIP": 8.67,
+    "VIP_PLUS": 18.59,
+    "MVP": 37.19,
+    "MVP_PLUS": 55.79,
+    "MVP_PLUS_PLUS": 55.79
+}
+
+HYPX_API_KEY = "ee7209a0-f29e-4ed6-a27d-a907e9ebe750"
 
 # -------------------
 # Helpers
@@ -145,7 +153,11 @@ def calculate(username):
     changes = len(history) - 1
     if changes > 0:
         worth -= 5 * changes
-        details.append(f"Username changes penalty (-{5*changes})")
+        if worth < 7: 
+            worth = 7
+            details.append(f"Username changes penalty (-{5*changes} (caped at minimum 7$))")
+        else:
+            details.append(f"Username changes penalty (-{5*changes})")
     else:
         details.append("No username changes")
 
@@ -169,14 +181,9 @@ def calculate(username):
     else:
         hyp = hyp_data["player"]
         if hyp:
-            if hyp.get("banned", False):
-                worth -= 1
-                warnings.append("Hypixel banned")
-            else:
-                worth += 1
-                details.append("Good Hypixel standing (+1)")
             if "newPackageRank" in hyp:
-                rank_value = int(8.67 / 2.3)
+                print(hyp['newPackageRank'])
+                rank_value = int(rank_prices[hyp['newPackageRank']] / 2.3)
                 worth += rank_value
                 details.append(f"Hypixel rank {hyp['newPackageRank']} (+{rank_value})")
 
@@ -198,6 +205,10 @@ def home():
 @app.route("/tos")
 def tos():
     return send_from_directory(app.static_folder, "tos.html")
+
+@app.route("/special-thenks")
+def st():
+    return send_from_directory(app.static_folder, "special-thenks.html")
 
 @app.route("/api/patchnotes")
 def patchNotes():

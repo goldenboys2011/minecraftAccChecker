@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Special Thanks — mcchecker.goldencube.dev</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-gray-100 p-8 antialiased">
+  <main class="max-w-5xl mx-auto">
+    <h1 class="text-4xl font-extrabold mb-8">Special Thanks <span class="emoji">💙</span></h1>
+
+    <div class="mb-6">
+      <input id="search" placeholder="Search name or MC account" class="px-4 py-3 rounded bg-gray-800 border border-gray-700 w-full text-lg" />
+    </div>
+
+    <div id="lists" class="space-y-8"></div>
+
+    <footer class="mt-12 text-base text-gray-400">Made with <span class="emoji">💙</span> — <em>mcchecker.goldencube.dev</em></footer>
+  </main>
+
+  <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+  <script>
+    const contributors = [
+      { name: 'DL0ZE', role: 'Tester', mcAccount: 'DL0ZE' },
+      { name: 'was_blank', role: 'Tester', mcAccount: 'Zaahen'},
+      { name: 'goldenGR (yes myself)', role: 'Developer', mcAccount: 'goldenGR' },
+      { name: 'DL0ZE', role: 'Advisor', mcAccount: 'DL0ZE' },
+    ];
+
+    const categories = [
+      { key: 'Tester', title: 'Testers' },
+      { key: 'Debugger', title: 'Debuggers' },
+      { key: 'Developer', title: 'Developers' },
+      { key: 'Advisor', title: 'Advisors' }
+    ];
+
+    const listsEl = document.getElementById('lists');
+
+    function render(filter = '') {
+      listsEl.innerHTML = '';
+      const f = filter.trim().toLowerCase();
+
+      categories.forEach(cat => {
+        const section = document.createElement('section');
+
+        const h = document.createElement('h2');
+        h.className = 'text-2xl font-bold mb-3 border-b border-gray-700 pb-1';
+        h.textContent = cat.title;
+        section.appendChild(h);
+
+        const ul = document.createElement('ul');
+        ul.className = 'space-y-2';
+
+        const filtered = contributors.filter(p => p.role === cat.key && (
+          !f || p.name.toLowerCase().includes(f) || (p.mcAccount && p.mcAccount.toLowerCase().includes(f))
+        ));
+
+        if (filtered.length === 0) {
+          const none = document.createElement('li');
+          none.className = 'text-gray-500 text-lg';
+          none.textContent = '— none listed —';
+          ul.appendChild(none);
+        } else {
+          filtered.forEach(p => {
+            const li = document.createElement('li');
+            li.className = 'text-xl';
+            if (p.mcAccount) {
+              li.innerHTML = `${p.role}: <span class='font-semibold'>${p.name}</span> (<span class='underline cursor-pointer hover:text-gray-300' onclick="location.href='/?username=${encodeURIComponent(p.mcAccount)}'">${p.mcAccount}</span>)`;
+            } else {
+              li.innerHTML = `${p.role}: <span class='font-semibold'>${p.name}</span> (—)`;
+            }
+            ul.appendChild(li);
+          });
+        }
+
+        section.appendChild(ul);
+        listsEl.appendChild(section);
+      });
+
+      if (window.twemoji) twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+    }
+
+    document.getElementById('search').addEventListener('input', e => render(e.target.value));
+
+    render();
+  </script>
+</body>
+</html>
