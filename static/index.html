@@ -310,7 +310,8 @@ const extensionMap = {
   otf: "opentype"
 };
 const capeUsernames = {
-  "Zaahen":"tester_cape"
+  "Zaahen":"tester_cape.png",
+  "DL0ZE": "hg.png",
 }
 async function analyze() {
   const user = document.getElementById("username").value;
@@ -369,38 +370,56 @@ async function analyze() {
     `url("./static/fonts/${fileName}") format("${format}")`
   );
 
-  html += `<canvas id="skin_container"></canvas>`;
+  html += `
+    <div style="display:flex; align-items:center; gap:10px; justify-content:center; margin-top:20px;">
+      <canvas id="skin_container"></canvas>
+      <button id="elytraBtn" class="expand-btn" onclick="toggleElytra()">Toggle Elytra</button>
+    </div>
+  `;
   document.getElementById("results").innerHTML = html;
 
   const canvas = document.getElementById("skin_container");
 
   if (!canvas) return;
 
-  const viewer = new skinview3d.SkinViewer({
+  window.viewer = new skinview3d.SkinViewer({
       canvas: canvas,
       width: 300,
       height: 400,
       skin: `http://textures.minecraft.net/texture/${hash}`,
   });
 
-  viewer.controls.enableZoom = true;
-  viewer.autoRotate = true
-  viewer.animation = new skinview3d.WalkingAnimation();
-  viewer.animation.speed = 1;
-  viewer.zoom = 0.8;
+  window.viewer.controls.enableZoom = true;
+  window.viewer.autoRotate = true
+  window.viewer.animation = new skinview3d.WalkingAnimation();
+  window.viewer.animation.speed = 1;
+  window.viewer.zoom = 0.8;
+  window.capeLink = ""
+  window.elytra = false
   if (user in capeUsernames){
-    viewer.loadCape(`./static/capes/${capeUsernames[user]}`);
+    window.capeLink = `./static/capes/${capeUsernames[user]}`
   }
   else if (hashCape != "") {
-      viewer.loadCape(`http://textures.minecraft.net/texture/${hashCape}`);
+    window.capeLink = `http://textures.minecraft.net/texture/${hashCape}`
   }
+  window.viewer.loadCape(window.capeLink);
 
   font.load().then((loadedFont) => {
     document.fonts.add(loadedFont);
-    viewer.nameTag = user + (emojiUSernames[user] || "");
+    window.viewer.nameTag = user + (emojiUSernames[user] || "");
   });
   
   twemoji.parse(document.body);
+}
+
+function toggleElytra(){
+  if (!window.elytra){
+    window.viewer.loadCape(window.capeLink, { backEquipment: "elytra" });
+    elytra = true
+  }else{
+    window.viewer.loadCape(window.capeLink);
+    elytra = false
+  }
 }
 
 function toggleExpand(id, btn) {
